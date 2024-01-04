@@ -1,0 +1,68 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_base_mid_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    joint_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    
+    joint_mid_top_position_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+joint_base_mid_position_controller:
+  ros__parameters:
+    joints:
+      - joint_base_mid   
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+    pid:
+      joint_base_mid:
+        p: 100
+        i: 0.7
+        d: 1
+      
+joint_mid_top_position_controller:
+  ros__parameters:
+    joints:
+      - joint_mid_top   
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+    pid:
+      joint_base_mid:
+        p: 100
+        i: 0.7
+        d: 1
+
+joint_gripper_controller:
+  ros__parameters:
+    joints: 
+      - right_gripper_joint
+      - left_gripper_joint 
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+    pid:
+      right_gripper_joint:
+        p: 1.0
+        i: 0.00
+        d: 0.0
+      left_gripper_joint:
+        p: 1.0
+        i: 0.00
+        d: 0.0

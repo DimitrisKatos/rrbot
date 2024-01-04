@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    
+    <joint name="joint_base_mid">
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">1.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="joint_mid_top">
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">1.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="right_gripper_joint">
+      <command_interface name="position">
+        <param name="min">-0.548</param>
+        <param name="max">0.0</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">1.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="left_gripper_joint">
+      <command_interface name="position">
+        <param name="min">-0.548</param>
+        <param name="max">0.0</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">1.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+      <transmission name="transmission1">
+        <plugin>transmission_interface/SimpleTransmission</plugin>
+        <actuator name="actuator1" role="actuator1"/>
+        <joint name="joint_base_mid" role="joint_base_mid">
+          <mechanical_reduction>2.0</mechanical_reduction>
+          <offset>0.0</offset>
+        </joint>
+      </transmission>
+
+      <transmission name="transmission2">
+        <plugin>transmission_interface/SimpleTransmission</plugin>
+        <actuator name="actuator2" role="actuator2"/>
+        <joint name="joint_mid_top" role="joint_mid_top">
+          <mechanical_reduction>4.0</mechanical_reduction>
+          <offset>0.0</offset>
+        </joint>
+      </transmission>
+
+      <transmission name="transmission3">
+        <plugin>transmission_interface/SimpleTransmission</plugin>
+        <actuator name="actuator1" role="actuator1"/>
+        <joint name="left_gripper_joint" role="left_gripper_joint">
+          <mechanical_reduction>2.0</mechanical_reduction>
+          <offset>0.0</offset>
+        </joint>
+      </transmission>
+
+      <transmission name="transmission4">
+        <plugin>transmission_interface/SimpleTransmission</plugin>
+        <actuator name="actuator2" role="actuator2"/>
+        <joint name="right_gripper_joint" role="right_gripper_joint">
+          <mechanical_reduction>4.0</mechanical_reduction>
+          <offset>0.0</offset>
+        </joint>
+      </transmission>
+  </ros2_control>
+
+</robot>
