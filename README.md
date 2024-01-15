@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Create your first robot arm
 In this tutorial we will build a two degrees of freedom robotics arm using xacro methods. The simulated robot arm, rrbot, has two revolote joints and a gripper in the third which is a mesh file. 
 
@@ -79,3 +80,6 @@ In the following step we will build our package using colcon tool.
 cd ~/ros2_ws
 colcon build --packages-select rrobt
 ```
+=======
+## Two degrees of freedom robot arm. 
+>>>>>>> 6cbee4f6afb919f64413ef636b6fed79ca10100d
