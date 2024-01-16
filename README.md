@@ -82,3 +82,202 @@ colcon build --packages-select rrobt
 ```
 
 ## Create your first robot arm using xacro features.
+For the first robot arm, we will build a URDF file that defines three links and two joins. Xacro features will be introduced to help us build the 2 degrees of freedom robot arm. Create a file named rrbot.xacro in th URDF folder of the package. The [rrbot.xacro](https://github.com/DimitrisKatos/rrbot/blob/master/urdf/rrbot.xacro) is the following :
+```xml
+<?xml version="1.0"?>
+<!-- Revolute-Revolute Manipulator -->
+<robot name="rrbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Constants for robot dimensions -->
+  <xacro:property name="width" value="0.1" />   <!-- Beams are square in length and width -->
+  <xacro:property name="height1" value="2" />   <!-- Link 1 -->
+  <xacro:property name="height2" value="1" />   <!-- Link 2 -->
+  <xacro:property name="height3" value="1" />   <!-- Link 3 -->
+  <xacro:property name="axle_offset" value="0.05" /> <!-- Space between joint and end of beam -->
+  <xacro:property name="damp" value="0.7" />    <!-- damping coefficient -->
+
+  <!-- Base Link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height1}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height1}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 ${height1/2}" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+  <!-- Joint between Base Link and Middle Link -->
+  <joint name="joint_base_mid" type="revolute">
+    <parent link="base_link"/>
+    <child link="mid_link"/>
+    <origin xyz="0 ${width} ${height1 - axle_offset}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-3.14" upper="3.14" />
+  </joint>
+
+  <!-- Middle Link -->
+  <link name="mid_link">
+    <visual>
+      <origin xyz="0 0 ${height2/2 - axle_offset}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height2}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${height2/2 - axle_offset}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height2}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 ${height2/2 - axle_offset}" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+  <!-- Joint between Middle Link and Top Link -->
+  <joint name="joint_mid_top" type="revolute">
+    <parent link="mid_link"/>
+    <child link="top_link"/>
+    <origin xyz="0 ${width} ${height2 - axle_offset*2}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="${damp}"/>
+    <limit effort="100.0" velocity="0.5" lower="-3.14" upper="3.14" />
+  </joint>
+
+  <!-- Top Link -->
+  <link name="top_link">
+    <visual>
+      <origin xyz="0 0 ${height3/2 - axle_offset}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height3}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 ${height3/2 - axle_offset}" rpy="0 0 0"/>
+      <geometry>
+	<box size="${width} ${width} ${height3}"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0 0 ${height3/2 - axle_offset}" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia
+	  ixx="1.0" ixy="0.0" ixz="0.0"
+	  iyy="1.0" iyz="0.0"
+	  izz="1.0"/>
+    </inertial>
+  </link>
+
+</robot>
+```
+
+The above XML code defines a robot arm, labeled rrbot, which has three links which has 0.1 meters depth and width. The first link has 2 meter height and the other two has 1 meter height. In the following step we will create a new launch file to start Rviz2 and visualize the robot. Create a new file named [rrbot_rviz.launch.py](https://github.com/DimitrisKatos/rrbot/blob/master/launch/rrbot_rviz.launch.py) in the launch folder of the package. 
+```py
+from ament_index_python.packages import get_package_share_path
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition, UnlessCondition
+from launch.substitutions import Command, LaunchConfiguration
+
+from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
+
+def generate_launch_description():
+    rrbot_path = get_package_share_path('rrbot')
+    default_model_path = rrbot_path / 'urdf/rrbot4.xacro'
+    
+
+    gui_arg = DeclareLaunchArgument(name='gui', default_value='true', choices=['true', 'false'],
+                                    description='Flag to enable joint_state_publisher_gui')
+    model_arg = DeclareLaunchArgument(name='model', default_value=str(default_model_path),
+                                      description='Absolute path to robot urdf file')
+    
+    robot_description = ParameterValue(Command(['xacro ', LaunchConfiguration('model')]),
+                                       value_type=str)
+
+    # Define all the Nodes which will start
+    robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        parameters=[{'robot_description': robot_description}]
+    )
+
+    # You can use either joint state publisher or joint state publisher gui.
+    # When you launch this file, give an extra argument.
+    # gui = True for joint state publisher gui, False for joint state publisher. 
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        condition=UnlessCondition(LaunchConfiguration('gui'))
+    )
+
+    joint_state_publisher_gui_node = Node(
+        package='joint_state_publisher_gui',
+        executable='joint_state_publisher_gui',
+        condition=IfCondition(LaunchConfiguration('gui'))
+    )
+
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+    )
+
+    return LaunchDescription([
+        gui_arg,
+        model_arg,
+        joint_state_publisher_node,
+        joint_state_publisher_gui_node,
+        robot_state_publisher_node,
+        rviz_node
+    ])
+```
+
+To start the launch you need to run the next commands. 
+```
+cd ~/ros2_ws
+colcon build
+cd src/rrbot # For WSL, run the next command
+export LIBGL_ALWAYS_SOFTWARE=1 LIBGL_ALWAYS_INDIRECT=0
+ros2 launch rrbot rrbot_rviz.launch.py model:=urdf/rrbot.xacro gui:='true'
+```
+The above launch file will start the Rviz, but the robot hasn't at the 3D environment. To visualize the robot you must maked some changes:
+- Change the Fixed Frame to base_link.
+- Select Add from Displays Panel.
+- Select RobotModel.
+- From Displays Panel, RobotModel change the Desciption Topic to /robot_description.
+
+Now, the robot has been launch to the envirinment. Also you can check the joints from the Joint State Publisher gui. 
+
+![Poll Mockup](./images/image2.png)
+
+---
+## Expanding Xacro
