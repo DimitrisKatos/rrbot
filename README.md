@@ -1,15 +1,18 @@
 # Create your first robot arm
 In this tutorial we will build a two degrees of freedom robotics arm using xacro methods. The simulated robot arm, rrbot, has two revolote joints and a gripper in the third which is a mesh file. 
 
-Totaly, you will learn the following:
+Totally, you will learn the following:
 - The advantages of using Xacro in a URDF
 - Designing a three-link, two-join robotic arm using Xacro and mesh files.
 - Controlling the arm in Gazebo classic using the ros2_control package. 
 
-Before we move forward, in the following link you can find a presentation tha will guide you through this tutorial. In the presentation you can find information about xacro properties, creating a new ROS 2 package and how to set up it. Also gives you information on how to build a two degree robot arm and how to use ros2_control package to control the robot.
+Before we move forward, in the following link you can find a presentation that will guide you through this tutorial. In the presentation you can find information about xacro properties, creating a new ROS 2 package and how to set up it. Also gives you information on how to build a two degree robot arm and how to use ros2_control package to control the robot.
 
 - [rrbot package presantation](https://docs.google.com/presentation/d/1dzuV5KVsP0y9m2f1q3UD7XVk2-SVqx-K/edit?usp=drive_web&ouid=106628092038381749227&rtpof=true) Greek language.
-- [rrbot package presantation] English language (coming soon).
+- [rrbot package presantation]() English language (coming soon).
+
+You can also see a video of the robots controller in this [link](https://drive.google.com/file/d/1ZgPk_ZAQrTe5CWucW98D_FNY3EvLar2H/view?usp=drive_link).
+
 
 ## Features of Xacro. 
 Xacro is the XML macro language for ROS 2. Xacro provides a set of macro operation to replace some statements with sorter macros. Xacro can be used in any XML document, but is most usefull in long and complex URDF files. In Generally, xacro provides you methods that allow you to create more readable XML files for your URDF robot. 
@@ -391,3 +394,4 @@ ros2 action send_goal /joint_base_mid_position_controller/follow_joint_trajector
 ```
 
 ![Poll Mockup](./images/image8.png)
+---
